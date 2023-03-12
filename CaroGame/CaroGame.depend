@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1573725182 source:c:\users\admin\desktop\btl\carogame\main.cpp
+	<exception>
+	<string>
+	<iostream>
+	<SDL.h>
+

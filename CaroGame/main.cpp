@@ -2,112 +2,122 @@
 #include <string>
 #include <iostream>
 #include <SDL.h>
+#include <SDL_image.h>
+#define MAX 4
 
-class InitError : public std::exception
-{
-    std::string msg;
-public:
-    InitError();
-    InitError( const std::string & );
-    virtual ~InitError() throw();
-    virtual const char * what() const throw();
+using namespace std;
+
+char a[3][3] = {'1', '2', '3', '4', '5', '6', '7','8','9'};
+
+struct Toado{
+    int x;
+    int y;
 };
-
-InitError::InitError() :
-    exception(),
-    msg( SDL_GetError() )
-{
+//Ve ban co
+void veBanCo(){
+    for(int i = 0; i < 3; i++){
+        for(int j = 0; j < 3; j++){
+            cout << a[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
-
-InitError::InitError( const std::string & m ) :
-    exception(),
-    msg( m )
-{
+//Nguoi choi nhap X
+void getPlayerX(){
+    cout << "Player X's turn" << endl;
+    Toado toado;
+    cout << "Nhap x: ";
+    cin >> toado.x ;
+    cout << "Nhap y: ";
+    cin >> toado.y;
+    cout << endl;
+    if(a[toado.x][toado.y] != 'O'){
+        a[toado.x][toado.y] = 'X';
+    }else{
+        cout << "Error! Please retype your choice :3" << endl;
+        Toado toado;
+        cout << "Nhap x: ";
+        cin >> toado.x ;
+        cout << "Nhap y: ";
+        cin >> toado.y;
+        cout << endl;
+        if(a[toado.x][toado.y] != 'O'){
+            a[toado.x][toado.y] = 'X';
+        }
+        while(a[toado.x][toado.y] == 'O'){
+            cout << "Error! Please retype your choice :3" << endl;
+            cout << "Nhap x: ";
+            cin >> toado.x ;
+            cout << "Nhap y: ";
+            cin >> toado.y;
+            if(a[toado.x][toado.y] != 'O'){
+                a[toado.x][toado.y] = 'X';
+            }
+            cout << endl;
+        }
+    }
 }
-
-InitError::~InitError() throw()
-{
+//Nguoi choi nhap O
+void getPlayerO(){
+    cout << "Player O's turn" << endl;
+    Toado toado;
+    cout << "Nhap x: ";
+    cin >> toado.x ;
+    cout << "Nhap y: ";
+    cin >> toado.y;
+    cout << endl;
+    if(a[toado.x][toado.y] != 'X'){
+        a[toado.x][toado.y] = 'O';
+    }else{
+        cout << "Error! Please retype your choice :3" << endl;
+        Toado toado;
+        cout << "Nhap x: ";
+        cin >> toado.x ;
+        cout << "Nhap y: ";
+        cin >> toado.y;
+        if(a[toado.x][toado.y] != 'X'){
+            a[toado.x][toado.y] = 'O';
+        }
+        cout << endl;
+        while(a[toado.x][toado.y] == 'X'){
+            cout << "Error! Please retype your choice :3" << endl;
+            cout << "Nhap x: ";
+            cin >> toado.x ;
+            cout << "Nhap y: ";
+            cin >> toado.y;
+            if(a[toado.x][toado.y] != 'X'){
+                a[toado.x][toado.y] = 'O';
+            }
+            cout << endl;
+        }
+    }
 }
-
-const char * InitError::what() const throw()
-{
-    return msg.c_str();
+//Kiem tra nguoi choi thang
+bool checkWin(){
+    if((a[0][0] == a[0][1] && a[0][0] == a[0][2]) || (a[1][0] == a[1][1] && a[1][0] == a[1][2]) || (a[2][0] == a[2][1] && a[2][0] == a[2][2])){
+        return 1;
+    }
+    if((a[0][0] == a[1][0] && a[2][0] == a[0][0]) || (a[0][1] == a[1][1] && a[1][1] == a[2][1]) || (a[0][2] == a[1][2] && a[0][2] == a[2][2])){
+        return 1;
+    }
+    if((a[0][0] == a[1][1] && a[0][0] == a[2][2]) || (a[0][2] == a[1][1] && a[1][1] == a[2][0])){
+        return 1;
+    }
+    return 0;
 }
-
-class SDL
-{
-    SDL_Window * m_window;
-    SDL_Renderer * m_renderer;
-public:
-    SDL( Uint32 flags = 0 );
-    virtual ~SDL();
-    void draw();
-};
-
-SDL::SDL( Uint32 flags )
-{
-    if ( SDL_Init( flags ) != 0 )
-        throw InitError();
-
-    if ( SDL_CreateWindowAndRenderer( 640, 480, SDL_WINDOW_SHOWN,
-                                      &m_window, &m_renderer ) != 0 )
-        throw InitError();
-}
-
-SDL::~SDL()
-{
-    SDL_DestroyWindow( m_window );
-    SDL_DestroyRenderer( m_renderer );
-    SDL_Quit();
-}
-
-void SDL::draw()
-{
-    // Clear the window with a black background
-    SDL_SetRenderDrawColor( m_renderer, 0, 0, 0, 255 );
-    SDL_RenderClear( m_renderer );
-
-    // Show the window
-    SDL_RenderPresent( m_renderer );
-
-    int rgb[] = { 203, 203, 203, // Gray
-                  254, 254,  31, // Yellow
-                    0, 255, 255, // Cyan
-                    0, 254,  30, // Green
-                  255,  16, 253, // Magenta
-                  253,   3,   2, // Red
-                   18,  14, 252, // Blue
-                    0,   0,   0  // Black
-                };
-
-    SDL_Rect colorBar;
-    colorBar.x = 0; colorBar.y = 0; colorBar.w = 90; colorBar.h = 480;
-
-    // Render a new color bar every 0.5 seconds
-    for ( int i = 0; i != sizeof rgb / sizeof *rgb; i += 3, colorBar.x += 90 )
-    {
-        SDL_SetRenderDrawColor( m_renderer, rgb[i], rgb[i + 1], rgb[i + 2], 255 );
-        SDL_RenderFillRect( m_renderer, &colorBar );
-        SDL_RenderPresent( m_renderer );
-        SDL_Delay( 500 );
+//In ra ket qua tro choi
+void resultOfTheGame(){
+    if(checkWin()){
+        cout << "You Win";
     }
 }
 
-int main( int argc, char * argv[] )
-{
-    try
-    {
-        SDL sdl( SDL_INIT_VIDEO | SDL_INIT_TIMER );
-        sdl.draw();
-
-        return 0;
+int main(int argc, char* argv[]){
+    veBanCo();
+    while(!checkWin()){
+        getPlayerX();
+        getPlayerO();
+        veBanCo();
     }
-    catch ( const InitError & err )
-    {
-        std::cerr << "Error while initializing SDL:  "
-                  << err.what()
-                  << std::endl;
-    }
-
-    return 1;
+    return 0;
 }
